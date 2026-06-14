@@ -11,6 +11,334 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ── Responsive CSS Injection ──────────────────────────────────
+st.markdown(
+    """
+    <style>
+    /* ── Google Font ── */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* ── Root tokens ── */
+    :root {
+        --sidebar-bg:      #0F172A;
+        --sidebar-accent:  #3B82F6;
+        --sidebar-text:    #CBD5E1;
+        --sidebar-label:   #64748B;
+        --sidebar-border:  #1E293B;
+        --sidebar-hover:   #1E293B;
+        --sidebar-width:   260px;
+        --header-blue:     #1E3A8A;
+        --body-font:       'Inter', sans-serif;
+        --radius:          10px;
+    }
+
+    /* ── Global font ── */
+    html, body, [class*="css"] {
+        font-family: var(--body-font) !important;
+    }
+
+    /* ── Main content area ── */
+    .main .block-container {
+        padding: 1.5rem 2rem 3rem 2rem;
+        max-width: 1400px;
+    }
+
+    /* ══════════════════════════════════════
+       SIDEBAR — full restyle
+    ══════════════════════════════════════ */
+    section[data-testid="stSidebar"] {
+        background: var(--sidebar-bg) !important;
+        border-right: 1px solid var(--sidebar-border);
+        min-width: var(--sidebar-width) !important;
+        max-width: var(--sidebar-width) !important;
+        transition: transform 0.3s ease, width 0.3s ease;
+    }
+
+    /* Sidebar inner padding */
+    section[data-testid="stSidebar"] > div:first-child {
+        padding: 1.5rem 1.25rem 2rem 1.25rem;
+    }
+
+    /* Sidebar header text (🔍 Filter Data) */
+    section[data-testid="stSidebar"] h2 {
+        color: #F1F5F9 !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--sidebar-border);
+    }
+
+    /* Sidebar filter labels */
+    section[data-testid="stSidebar"] label {
+        color: var(--sidebar-label) !important;
+        font-size: 0.72rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    /* Multiselect container */
+    section[data-testid="stSidebar"] .stMultiSelect > div > div {
+        background: #1E293B !important;
+        border: 1px solid #334155 !important;
+        border-radius: var(--radius) !important;
+        color: var(--sidebar-text) !important;
+        font-size: 0.82rem !important;
+        transition: border-color 0.2s;
+    }
+    section[data-testid="stSidebar"] .stMultiSelect > div > div:focus-within {
+        border-color: var(--sidebar-accent) !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+    }
+
+    /* Multiselect tags (selected items) */
+    section[data-testid="stSidebar"] .stMultiSelect span[data-baseweb="tag"] {
+        background: #1D4ED8 !important;
+        border-radius: 6px !important;
+        color: #EFF6FF !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Multiselect tag × button */
+    section[data-testid="stSidebar"] .stMultiSelect span[data-baseweb="tag"] svg {
+        color: #BFDBFE !important;
+    }
+
+    /* Multiselect dropdown list */
+    ul[data-testid="stMultiSelectOptionsList"] {
+        background: #1E293B !important;
+        border: 1px solid #334155 !important;
+        border-radius: var(--radius) !important;
+    }
+    ul[data-testid="stMultiSelectOptionsList"] li {
+        color: #CBD5E1 !important;
+        font-size: 0.82rem !important;
+    }
+    ul[data-testid="stMultiSelectOptionsList"] li:hover {
+        background: #334155 !important;
+    }
+
+    /* Divider inside sidebar */
+    section[data-testid="stSidebar"] hr {
+        border-color: var(--sidebar-border) !important;
+        margin: 1rem 0;
+    }
+
+    /* Sidebar collapse button */
+    button[data-testid="collapsedControl"],
+    button[kind="header"] {
+        background: var(--sidebar-bg) !important;
+        border: none !important;
+        color: var(--sidebar-text) !important;
+    }
+
+    /* ══════════════════════════════════════
+       TABS — cleaner look
+    ══════════════════════════════════════ */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 4px;
+        border-bottom: 2px solid #E2E8F0;
+        padding-bottom: 0;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background: transparent;
+        border: none;
+        border-radius: 8px 8px 0 0;
+        color: #64748B;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.55rem 1.1rem;
+        transition: color 0.2s, background 0.2s;
+    }
+    .stTabs [aria-selected="true"] {
+        background: #EFF6FF !important;
+        color: var(--header-blue) !important;
+        font-weight: 700;
+        border-bottom: 2px solid var(--header-blue) !important;
+    }
+
+    /* ══════════════════════════════════════
+       METRIC CARDS
+    ══════════════════════════════════════ */
+    div[data-testid="metric-container"] {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    div[data-testid="metric-container"] label {
+        color: #64748B !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+    div[data-testid="metric-container"] div[data-testid="stMetricValue"] {
+        color: var(--header-blue) !important;
+        font-size: 1.6rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* ══════════════════════════════════════
+       SUBHEADERS
+    ══════════════════════════════════════ */
+    h2 { color: #1E293B !important; }
+    h3 { color: #334155 !important; font-size: 1rem !important; }
+
+    /* ══════════════════════════════════════
+       DATAFRAME
+    ══════════════════════════════════════ */
+    .stDataFrame {
+        border-radius: var(--radius);
+        overflow: hidden;
+        border: 1px solid #E2E8F0;
+    }
+
+    /* ══════════════════════════════════════
+       SELECTBOX & TEXT INPUT (Tab 4)
+    ══════════════════════════════════════ */
+    .stSelectbox > div > div,
+    .stTextInput > div > div > input {
+        border-radius: var(--radius) !important;
+        border-color: #CBD5E1 !important;
+        font-size: 0.85rem !important;
+    }
+    .stTextInput > div > div > input:focus {
+        border-color: var(--sidebar-accent) !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12) !important;
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE — Tablet (≤900px)
+    ══════════════════════════════════════ */
+    @media (max-width: 900px) {
+        .main .block-container {
+            padding: 1rem 1.25rem 2rem 1.25rem;
+        }
+
+        /* Stack Streamlit columns */
+        div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            font-size: 0.78rem;
+            padding: 0.45rem 0.7rem;
+        }
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE — Mobile (≤640px)
+       Sidebar becomes an overlay drawer
+    ══════════════════════════════════════ */
+    @media (max-width: 640px) {
+
+        /* Full-width main content when sidebar is collapsed */
+        .main .block-container {
+            padding: 0.75rem 0.85rem 2rem 0.85rem !important;
+        }
+
+        /* Sidebar slides in as a drawer over content */
+        section[data-testid="stSidebar"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            box-shadow: 4px 0 24px rgba(0,0,0,0.4) !important;
+            min-width: 85vw !important;
+            max-width: 85vw !important;
+        }
+
+        /* Collapse sidebar completely when closed on mobile */
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            transform: translateX(-100%) !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+        }
+
+        /* Give main content full width on mobile */
+        section.main {
+            margin-left: 0 !important;
+        }
+
+        /* Stack all columns */
+        div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        /* Tighten tabs on mobile */
+        .stTabs [data-baseweb="tab-list"] {
+            flex-wrap: wrap;
+            gap: 2px;
+        }
+        .stTabs [data-baseweb="tab"] {
+            font-size: 0.72rem;
+            padding: 0.4rem 0.55rem;
+        }
+
+        /* Metric cards full width */
+        div[data-testid="metric-container"] {
+            margin-bottom: 0.6rem;
+        }
+
+        /* Charts — cap height on mobile */
+        .js-plotly-plot {
+            max-height: 320px;
+        }
+
+        /* Header font size */
+        h1 { font-size: 1.4rem !important; }
+    }
+
+    /* ══════════════════════════════════════
+       MOBILE HINT BANNER (shows only on small screens)
+    ══════════════════════════════════════ */
+    .mobile-hint {
+        display: none;
+    }
+    @media (max-width: 640px) {
+        .mobile-hint {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #EFF6FF;
+            border: 1px solid #BFDBFE;
+            border-radius: 8px;
+            padding: 0.55rem 0.9rem;
+            font-size: 0.78rem;
+            color: #1D4ED8;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+    }
+
+    /* ══════════════════════════════════════
+       SCROLLBAR (sidebar)
+    ══════════════════════════════════════ */
+    section[data-testid="stSidebar"] ::-webkit-scrollbar {
+        width: 4px;
+    }
+    section[data-testid="stSidebar"] ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    section[data-testid="stSidebar"] ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 2px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # ── Data Loading ──────────────────────────────────────────────
 @st.cache_data
 def load_data():
@@ -63,8 +391,8 @@ df = load_data()
 # ── Header ────────────────────────────────────────────────────
 st.markdown(
     """
-    <h1 style='text-align:center; color:#1E3A8A;'>
-        AI-Driven Buyer Segmentation Dashboard
+    <h1 style='text-align:center; color:#1E3A8A; font-family:Inter,sans-serif; font-weight:700; letter-spacing:-0.02em;'>
+        AI-Driven Buyer Segmentation
     </h1>
     """,
     unsafe_allow_html=True
@@ -72,9 +400,19 @@ st.markdown(
 
 st.markdown(
     """
-    <p style='text-align:center; color:#6B7280;'>
-        Parcl Co. Limited — Market Intelligence
+    <p style='text-align:center; color:#94A3B8; font-family:Inter,sans-serif; font-size:0.9rem; margin-top:-0.4rem;'>
+        Parcl Co. Limited — Market Intelligence Dashboard
     </p>
+    """,
+    unsafe_allow_html=True
+)
+
+# Mobile hint banner
+st.markdown(
+    """
+    <div class="mobile-hint">
+        ☰ Tap the arrow at top-left to open filters
+    </div>
     """,
     unsafe_allow_html=True
 )
@@ -151,6 +489,10 @@ with tab1:
             hole=0.4,
             color_discrete_sequence=px.colors.qualitative.Pastel
         )
+        fig1.update_layout(
+            margin=dict(t=30, b=10, l=10, r=10),
+            autosize=True
+        )
 
         st.plotly_chart(fig1, use_container_width=True)
 
@@ -170,6 +512,11 @@ with tab1:
             y="Count",
             color="acquisition_purpose",
             barmode="group"
+        )
+        fig2.update_layout(
+            margin=dict(t=30, b=30, l=10, r=10),
+            autosize=True,
+            legend=dict(orientation="h", y=-0.25)
         )
 
         st.plotly_chart(fig2, use_container_width=True)
@@ -197,7 +544,9 @@ with tab2:
         height=550,
         xaxis_tickangle=-45,
         xaxis_title="Region",
-        yaxis_title="Number of Buyers"
+        yaxis_title="Number of Buyers",
+        margin=dict(t=30, b=80, l=10, r=10),
+        legend=dict(orientation="h", y=-0.3)
     )
 
     st.plotly_chart(fig3, use_container_width=True)
@@ -223,7 +572,8 @@ with tab2:
     fig4.update_layout(
         height=450,
         xaxis_title="Segment",
-        yaxis_title="Region"
+        yaxis_title="Region",
+        margin=dict(t=30, b=30, l=10, r=10)
     )
 
     st.plotly_chart(fig4, use_container_width=True)
