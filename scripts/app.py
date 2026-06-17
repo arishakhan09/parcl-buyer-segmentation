@@ -542,7 +542,38 @@ def load_data():
     df["has_loan"]    = (df["loan_applied"] == "Yes").astype(int)
     return df
 
+@st.cache_data
+def get_elbow_data():
+    raw_df = pd.read_csv('raw/clients.csv')
+    raw_df = raw_df.drop_duplicates(subset=['client_id'])
+    raw_df['loan_applied'] = raw_df['loan_applied'].fillna('Unknown')
+    raw_df['satisfaction_score'] = raw_df['satisfaction_score'].fillna(raw_df['satisfaction_score'].median())
+    raw_df['date_of_birth'] = pd.to_datetime(raw_df['date_of_birth'], errors='coerce')
+    raw_df['Age'] = 2026 - raw_df['date_of_birth'].dt.year
+    raw_df['Age'] = raw_df['Age'].fillna(raw_df['Age'].median())
+
+    categorical_cols = ['client_type', 'region', 'acquisition_purpose', 'referral_channel', 'country']
+    df_encoded = pd.get_dummies(raw_df, columns=categorical_cols, drop_first=True)
+
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    numeric_cols = ['Age', 'satisfaction_score']
+    df_encoded[numeric_cols] = scaler.fit_transform(df_encoded[numeric_cols])
+
+    features = df_encoded.drop(columns=['client_id', 'first_name', 'last_name', 'date_of_birth', 'gender', 'loan_applied', 'Cluster', 'HC_Cluster'], errors='ignore')
+    features = features.select_dtypes(include=[np.number])
+
+    from sklearn.cluster import KMeans
+    ks = list(range(1, 9))
+    wcss = []
+    for k in ks:
+        km = KMeans(n_clusters=k, random_state=42)
+        km.fit(features)
+        wcss.append(km.inertia_)
+    return ks, wcss
+
 df = load_data()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CHART THEME
@@ -1086,26 +1117,31 @@ with tabs[3]:
     ml1, ml2 = st.columns(2, gap="large")
 
     with ml1:
-        # Elbow Method — actual values unavailable; display explanation
-        st.markdown("""
-        <div class="chart-card">
-            <div class="chart-title">ELBOW METHOD — OPTIMAL K</div>
-            <div class="chart-desc">K-Means inertia across candidate cluster counts</div>
-            <div style="background:#FEF9C3;border:1px solid #FDE047;border-radius:8px;padding:14px 16px;margin-top:10px;">
-                <div style="font-size:0.8rem;font-weight:600;color:#713F12;margin-bottom:6px;">ℹ️ Training Output</div>
-                <div style="font-size:0.78rem;color:#78350F;line-height:1.6;">
-                    Elbow curve values were computed during model training in <code>model.py</code> and printed to console.
-                    The elbow at <strong>K = 4</strong> was visually confirmed, motivating the final cluster count.
-                    To display the curve here, export WCSS values from <code>model.py</code> to a JSON artefact.
-                </div>
-            </div>
-            <div style="margin-top:14px;padding:14px;background:#F8F9FB;border-radius:8px;text-align:center;">
-                <div style="font-size:2rem;font-weight:700;color:#0F2040;">K = 4</div>
-                <div style="font-size:0.78rem;color:#6B7280;margin-top:4px;">Selected based on elbow analysis</div>
-                <div style="display:inline-block;background:#DCFCE7;color:#166534;font-size:0.68rem;font-weight:600;padding:2px 10px;border-radius:20px;margin-top:8px;">Validated ✓</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Dynamic Elbow Curve
+        ks, wcss = get_elbow_data()
+        fig_elbow = go.Figure()
+        fig_elbow.add_trace(go.Scatter(
+            x=ks, y=wcss,
+            mode="lines+markers",
+            line=dict(color=BLUE, width=3),
+            marker=dict(size=8, color=NAVY, symbol="circle"),
+            hovertemplate="K = %{x}<br>WCSS = %{y:.1f}<extra></extra>"
+        ))
+        # Highlight K=4 elbow point
+        fig_elbow.add_trace(go.Scatter(
+            x=[4], y=[wcss[3]],
+            mode="markers",
+            marker=dict(size=14, color="#EF4444", symbol="circle-open", line=dict(width=3)),
+            hovertemplate="Optimal K = 4<extra></extra>"
+        ))
+        fig_elbow.update_layout(
+            xaxis=dict(tickmode="linear", tick0=1, dtick=1, title="Number of Clusters (K)"),
+            yaxis=dict(title="Inertia (WCSS)"),
+        )
+        theme(fig_elbow, height=300, legend=False)
+        st.markdown('<div class="chart-card"><div class="chart-title">ELBOW METHOD — OPTIMAL K</div><div class="chart-desc">Within-cluster sum of squares (WCSS) drops sharply at K=4</div>', unsafe_allow_html=True)
+        st.plotly_chart(fig_elbow, width="stretch")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with ml2:
         k_vals = list(range(1, 11))
